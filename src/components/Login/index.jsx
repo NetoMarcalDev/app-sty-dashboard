@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import './style.css';
-import axios from 'axios';
+//import { login } from '../../api/User/Login';
+//import User from '../../globals/UserSettings';
+import { AuthContext } from '../../contexts/auth';
 
 export default function Login() {
 
@@ -10,6 +12,8 @@ export default function Login() {
     } 
 
     const [user, setUser] = useState(()=> userDefault);
+
+    const { authenticad , login } = useContext(AuthContext)
 
     const handleSetUserDescription = (e) => {
         if(e.target.getAttribute('name')  === 'user-name'){
@@ -23,15 +27,32 @@ export default function Login() {
         }
     }
 
-    const log = ()=> {
-       axios.post('https://localhost:3001/api/painel/clients', user)
-            .then(res=>alert(JSON.res))
-    }
+ 
+   const log = async () => {
+    
+    try {
 
+      const resp = await login(user);      
+      if (resp.status === 200) {
+        
+        /*User.default.id_user =  resp.data.user.id_user;
+        User.default.description_user =  resp.data.user.description_user;
+        User.default.access_token =  resp.data.access_token;
+        User.default.token_type =  resp.data.token_type;
+        User.default.expires_in =  resp.data.expires_in;
+
+        alert(JSON.stringify( User.default )); */      
+      }
+    } catch (error) {
+
+     console.log(error);      
+    }
+  }
     
     
 
     return(
+        <div className="background">
         <div className="container">
             <div className="d-flex justify-content-center h-100">
                 <div className="card">
@@ -43,6 +64,7 @@ export default function Login() {
                             <span><i className="fab fa-twitter-square"></i></span>
                         </div>*/}
                     </div>
+                    <p>{String(authenticad)}</p>
                     <div className="card-body">
                         <section>
                             <div className="input-group form-group">
@@ -89,7 +111,8 @@ export default function Login() {
                     </div>
                 </div>
             </div>
-        </div>        
+        </div>     
+        </div>   
     )
 }
 

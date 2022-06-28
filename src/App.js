@@ -1,11 +1,10 @@
 import React from 'react';
-import './App.css';
-import Login from './components/Login';
+import AppRoutes from './AppRoutes';
 
 export default function App() {
   return (
     <>
-     <Login />
+     <AppRoutes />
     </>
   );
 }

@@ -8,6 +8,6 @@ export default class CompanySettings {
             client_id: '',
             client_secret: ''
         },
-        endpoint: 'https://fortalcenter.com.br:3001/api/'
+        endpoint: 'https://localhost:3001/api/painel/'
     };
 } 

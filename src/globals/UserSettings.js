@@ -1,6 +1,7 @@
 export default class UserSettings {
 
-    static user = {
+    static default = {
+        id_user: '',
         description_user: '',
         password_user: '',
         access_token: '',
