@@ -8,6 +8,8 @@ export default class CompanySettings {
             client_id: '',
             client_secret: ''
         },
-        endpoint: 'https://localhost:3001/api/painel/'
+        api_endpoint: 'https://localhost:3001/api/painel/',
+        endpoint: 'http://localhost:3777/'
+
     };
 } 

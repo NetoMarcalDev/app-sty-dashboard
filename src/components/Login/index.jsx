@@ -1,8 +1,11 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useRef } from "react";
+import { Form, FormGroup, Input, Alert } from "reactstrap";
+
 import './style.css';
-//import { login } from '../../api/User/Login';
-//import User from '../../globals/UserSettings';
-import { AuthContext } from '../../contexts/auth';
+import { login } from '../../api/User/Login';
+import User from '../../globals/UserSettings';
+
+
 
 export default function Login() {
 
@@ -12,8 +15,10 @@ export default function Login() {
     } 
 
     const [user, setUser] = useState(()=> userDefault);
+    const [message, setMessage] = useState('');
 
-    const { authenticad , login } = useContext(AuthContext)
+    const inputName = useRef(null);
+    const inputPassword = useRef(null);
 
     const handleSetUserDescription = (e) => {
         if(e.target.getAttribute('name')  === 'user-name'){
@@ -27,32 +32,58 @@ export default function Login() {
         }
     }
 
- 
-   const log = async () => {
-    
-    try {
+    const handleSubmit = async (e) => {
+        e.preventDefault(); 
 
-      const resp = await login(user);      
-      if (resp.status === 200) {
-        
-        /*User.default.id_user =  resp.data.user.id_user;
-        User.default.description_user =  resp.data.user.description_user;
-        User.default.access_token =  resp.data.access_token;
-        User.default.token_type =  resp.data.token_type;
-        User.default.expires_in =  resp.data.expires_in;
+        try {
 
-        alert(JSON.stringify( User.default )); */      
-      }
-    } catch (error) {
+            if(testUserName() && testUserPassowrd()) {
 
-     console.log(error);      
+                var resp = await login(user);  
+
+                if (resp.status === 200) {
+                  
+                  User.default.id_user =  resp.data.user.id_user;
+                  User.default.description_user =  resp.data.user.description_user;
+                  User.default.access_token =  resp.data.access_token;
+                  User.default.token_type =  resp.data.token_type;
+                  User.default.expires_in =  resp.data.expires_in;
+          
+                  setMessage(JSON.stringify(User.default))
+                  return;
+                }
+            }
+            
+          } catch (error) {
+                if (error.message === 'Request failed with status code 401') {
+                    setMessage('Usuário ou senha inválidos.');
+                    return; 
+                }          
+                setMessage(error.message)            
+          }
     }
-  }
-    
-    
+ 
+    const testUserName = () => {
+        setMessage('');
+        if(user.description_user.length === 0) {
+            setMessage('Favor informar o Usuário.');   
+            inputName.current.focus();
+            return false;        
+        }
+        return true;
+    }
+
+    const testUserPassowrd = () => {
+        setMessage('');
+        if(user.password_user.length === 0) {
+            setMessage('Favor informar a senha.');   
+            inputPassword.current.focus();
+            return false;         
+        }
+        return true
+    }
 
     return(
-        <div className="background">
         <div className="container">
             <div className="d-flex justify-content-center h-100">
                 <div className="card">
@@ -64,55 +95,61 @@ export default function Login() {
                             <span><i className="fab fa-twitter-square"></i></span>
                         </div>*/}
                     </div>
-                    <p>{String(authenticad)}</p>
                     <div className="card-body">
-                        <section>
-                            <div className="input-group form-group">
-                                <div className="input-group-prepend">
-                                    <span className="input-group-text"><i className="fas fa-user"></i></span>
+                        <Form>
+                            <FormGroup>                                 
+                                <div className="input-group form-group">
+                                    <div className="input-group-prepend">
+                                        <span className="input-group-text"><i className="fas fa-user"></i></span>
+                                    </div>
+                                    <input
+                                        type="text" 
+                                        name='user-name' 
+                                        className="form-control" 
+                                        placeholder="usuário" 
+                                        autoFocus
+                                        ref={ inputName }
+                                        onChange={(e)=> handleSetUserDescription(e)}
+                                    />
                                 </div>
-                                <input
-                                    type="text" 
-                                    name='user-name' 
-                                    className="form-control" 
-                                    placeholder="usuário" 
-                                    onChange={(e)=> handleSetUserDescription(e)}
-                                />
-                            </div>
-                            <div className="input-group form-group">
-                                <div className="input-group-prepend">
-                                    <span className="input-group-text"><i className="fas fa-key"></i></span>
+                            </FormGroup>
+                            <FormGroup>
+                                <div className="input-group form-group">
+                                    <div className="input-group-prepend">
+                                        <span className="input-group-text"><i className="fas fa-key"></i></span>
+                                    </div>
+                                    <input 
+						        		type="password" 
+						        		name='user-password' 
+						        		className="form-control" 
+						        		placeholder="senha" 
+                                        ref={ inputPassword }
+						        		onChange={(e)=> handleSetUserPassWord(e)}
+                                    />
                                 </div>
-                                <input 
-                                    type="password" 
-                                    name='user-password' 
-                                    className="form-control" 
-                                    placeholder="senha" 
-                                    onChange={(e)=> handleSetUserPassWord(e)}
-                                />
-                            </div>
+                            </FormGroup>
                             <div className="form-group">
                                 <input 
                                     type="submit" 
                                     value="Acessar" 
                                     className="btn float-right login_btn"
-                                    onClick={()=> log()} 
+                                    onClick={(e)=> handleSubmit(e)} 
                                 />
                             </div>
-                        </section>
+                        </Form>                            
                     </div>
                     <div className="card-footer">                        
                         {/*<div className="d-flex justify-content-center links">
-                            Don't have an account?<a href="#">Sign Up</a>
+                           
                         </div>
                         <div className="d-flex justify-content-center">
                             <a href="#">Forgot your password?</a>
                         </div>*/}
                     </div>
+                        <div className="links">{message !== '' ? message  : ''}</div>   
                 </div>
             </div>
-        </div>     
-        </div>   
+        </div>        
     )
 }
 
