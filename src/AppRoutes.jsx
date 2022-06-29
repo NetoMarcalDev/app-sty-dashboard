@@ -1,21 +1,19 @@
 import React from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import LoginPage from './pages/Login/index';
-import HomePage from './pages/Home/index';
+import DashboardPage from './pages/Dashbosard/index';
 
-import { AuthProvider } from './contexts/auth';
+//import { AuthProvider } from './contexts/auth';
 
 const AppRoutes = () => {
 
-  return (
-    <main>      
-      <AuthProvider>
-        <Switch>      
-          <Route path='/login' component={ LoginPage } />
-          <Route path='/' component={ HomePage } />
-        </Switch>
-      </AuthProvider>
-    </main>
+  return (  
+    <Router>
+      <Switch>      
+        <Route exact path='/' component={ LoginPage } />
+        <Route path='/dashboard' component={ DashboardPage } />
+      </Switch>
+    </Router>
   );
 }
 
