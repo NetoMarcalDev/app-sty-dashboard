@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Form, FormGroup, Input, Alert } from "reactstrap";
+import { Form, FormGroup } from "reactstrap";
 
 import './style.css';
 import { login } from '../../api/User/Login';
@@ -7,7 +7,7 @@ import User from '../../globals/UserSettings';
 
 
 
-export default function Login() {
+export default function Login(props) {
 
     const userDefault = {
         description_user: '',
@@ -15,7 +15,7 @@ export default function Login() {
     } 
 
     const [user, setUser] = useState(()=> userDefault);
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState(() => props.props.location.state ? props.props.location.state.message : '');
 
     const inputName = useRef(null);
     const inputPassword = useRef(null);
@@ -48,8 +48,9 @@ export default function Login() {
                   User.default.access_token =  resp.data.access_token;
                   User.default.token_type =  resp.data.token_type;
                   User.default.expires_in =  resp.data.expires_in;
-          
-                  setMessage(JSON.stringify(User.default))
+                    
+                  localStorage.setItem('token', resp.data.access_token)
+                  props.props.history.push("/admin");
                   return;
                 }
             }
