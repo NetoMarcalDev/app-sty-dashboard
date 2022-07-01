@@ -1,22 +1,23 @@
 import React from 'react';
-
 import { Route, Redirect } from 'react-router-dom';
 
 const isAuth = () => {
+   
     console.log(localStorage.getItem('token'))
-    if (localStorage.getItem('token') !== '') {
+
+    if (localStorage.getItem('token') !== null) {
         return true;
-    }
+    }   
     return false;
-}
+};
 
 const PrivateRoute = ({component: Component, ...rest }) => {
     return (
         <Route 
-            {... rest }
+            {...rest }
             render={ props => 
                 isAuth() ? (
-                    <Component { ...props } />
+                    <Component {...props} />
                 ): (
                     <Redirect 
                         to={{
@@ -26,7 +27,7 @@ const PrivateRoute = ({component: Component, ...rest }) => {
                     />
                 )}
         />
-    )
+    );
 }
 
 export default PrivateRoute;

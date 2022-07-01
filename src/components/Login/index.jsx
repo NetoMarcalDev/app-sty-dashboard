@@ -43,11 +43,11 @@ export default function Login(props) {
 
                 if (resp.status === 200) {
                   
-                  User.default.id_user =  resp.data.user.id_user;
+                  /*User.default.id_user =  resp.data.user.id_user;
                   User.default.description_user =  resp.data.user.description_user;
                   User.default.access_token =  resp.data.access_token;
                   User.default.token_type =  resp.data.token_type;
-                  User.default.expires_in =  resp.data.expires_in;
+                  User.default.expires_in =  resp.data.expires_in;*/
                     
                   localStorage.setItem('token', resp.data.access_token)
                   props.props.history.push("/admin");
