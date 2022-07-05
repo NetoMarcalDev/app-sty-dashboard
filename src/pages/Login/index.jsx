@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Form, FormGroup, Label, Input, Button, Alert } from 'reactstrap';
 import Header from '../../components/Header';
+import { login } from '../../api/User/Login';
+
 
 export default class Login extends Component {
     
@@ -11,34 +13,36 @@ export default class Login extends Component {
         }
     }
 
-    singIn = () => {
+    handleSubmit = async (e) => {
+        e.preventDefault(); 
 
-        const data = { description_user: this.description_user, password_user: this.password_user };
-        
-        const requestInfo = {
-            method: 'POST',
-            body: JSON.stringify(data),
-            headers: new Headers({
-                'Content-Type': 'application/json'
-            }),
-        };
+        try {
 
-        fetch('https://fortalcenter.com.br:3001/api/painel/users/login', requestInfo)
-            .then(response => {
-                if (response.ok) {
-                    return response.json()
+            const data = { description_user: this.description_user, password_user: this.password_user }; 
+            
+            const resp = await login(data)  
+
+                if (resp.status === 200) {
+                  
+                  /*User.default.id_user =  resp.data.user.id_user;
+                  User.default.description_user =  resp.data.user.description_user;
+                  User.default.access_token =  resp.data.access_token;
+                  User.default.token_type =  resp.data.token_type;
+                  User.default.expires_in =  resp.data.expires_in;*/
+                    
+                  localStorage.setItem('token', resp.data.access_token)
+                  this.props.history.push("/admin");
+                  return;
                 }
-                throw new Error("Login inválido!");
-            })
-            .then(token => {
-                localStorage.setItem('token', token);
-                this.props.history.push("/admin");
-                return;
-            })
-            .catch(e => {
-                this.setState({ message: e.message })
-            });
-
+            }
+            
+           catch (error) {
+                if (error.message === 'Request failed with status code 401') {
+                    this.setState({ message: 'Usuário ou senha inválidos.'});
+                    return; 
+                }          
+                this.setState({ message: error.message});          
+          }
     }
 
     render() {
@@ -60,7 +64,7 @@ export default class Login extends Component {
                         <Label for='password_user'>Senha</Label>
                         <Input type='password' id='password_user' onChange={e => this.password_user = e.target.value } placeholder='Informe a senha' />
                     </FormGroup>
-                    <Button color='primary' block onClick={this.singIn}>Entrar </Button>
+                    <Button color='primary' block onClick={(e) => this.handleSubmit(e)}>Entrar </Button>
                 </Form>
             </div>
         )

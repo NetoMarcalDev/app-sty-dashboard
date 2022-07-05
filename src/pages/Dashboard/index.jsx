@@ -1,16 +1,48 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import Header from '../../components/Header';
+import React, {useState, useEffect } from 'react';
+import Menu from '../../components/Menu';
+import { getClients } from '../../api/Clients/Clientes';
 
-export default class Dashboard extends Component {
+const Dashboard = () => {
 
-    render() {
-        return(
-            <div>
-                <Header title='Dashboard' />
-                <hr className="my-3"/>
-                <Link to="/logout" className="btn btn-outline-primary">SAIR</Link>
-            </div>
-        )
+    const [list, setLis] = useState();
+
+    useEffect(() => {
+
+        showList();
+      }, []);
+
+    const showList = async () => {
+    
+        try {
+          
+            const resp = await getClients();
+             
+          if (resp.status === 201) {
+                console.log(resp.data.clients[0].description)
+              setLis([...resp.data]);  
+          }
+    
+        } catch (error) {
+    
+         console.log(error);      
+        }
+      }
+
+     const handleSubmit = async (e) => {
+        e.preventDefault(); 
+
+       
     }
+
+    return(
+        <div>
+            <Menu title='Dashboard' />
+            <hr className="my-3"/>
+            <p>Cliente: { }</p>
+        </div>
+    )
+
 }
+
+
+export default Dashboard;
