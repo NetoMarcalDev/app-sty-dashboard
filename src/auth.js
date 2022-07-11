@@ -3,8 +3,6 @@ import { Route, Redirect } from 'react-router-dom';
 
 const isAuth = () => {
    
-    console.log(localStorage.getItem('token'))
-
     if (localStorage.getItem('token') !== null) {
         return true;
     }   

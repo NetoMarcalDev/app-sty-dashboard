@@ -21,7 +21,11 @@ const Clients = () => {
             const resp = await getClients();
 
             if (resp.status === 201) {
-                setList([...resp.data.clients]);
+                setList((prev) => (
+                    [
+                        ...prev, 
+                        ...resp.data.clients
+                    ]));
             }
     
         } catch (error) {

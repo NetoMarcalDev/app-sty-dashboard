@@ -1,22 +1,53 @@
-import React  from 'react';
+import React, { useEffect, useState }  from 'react';
 import { Link } from 'react-router-dom';
+import './style.css';
+import { getTopNav } from '../../data/navbars';
 
 const Menu = () => {
+
+    const [navItems, setNavItems] = useState([]);
+    const [collapse, setCollapse] = useState("nav__menu");
+    const [toggleIcon, setToggleIcon] = useState("toggler__icon");
+
+    useEffect(()=>{
+        setNavItems(getTopNav());
+    }, [])
+
+
+     const onToggle = () => {
+        collapse === "nav__menu"
+            ? setCollapse("nav__menu nav__collapse")
+            : setCollapse("nav__menu");
+
+        toggleIcon === "toggler__icon"
+            ? setToggleIcon("toggler__icon toggle")
+            : setToggleIcon("toggler__icon");
+    };
+
     return(
-        <nav>
-            <h3>Logo</h3>
-            <ul>
-                <Link to='/admin'>
-                   <li>Início</li> 
+        <div className="nav__wrapper">
+            <div className="container">
+              <nav className="nav">
+                <Link to="#" className="nav__brand">
+                  Logo
                 </Link>
-                <Link to='/clients'>
-                    <li>Clientes</li>
-                </Link>
-                <Link to='/logout'>
-                    <li>Sair</li> 
-                </Link>
-            </ul>
-        </nav>
+                <ul className={collapse}>
+                  {navItems.map((item) => (
+                    <li key={item.id} className="nav__item">
+                      <Link to={item.href} className="nav__link">
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <div className={toggleIcon} onClick={onToggle}>
+                  <div className="line__1"></div>
+                  <div className="line__2"></div>
+                  <div className="line__3"></div>
+                </div>
+              </nav>
+            </div>
+        </div>
     )
 }
 
