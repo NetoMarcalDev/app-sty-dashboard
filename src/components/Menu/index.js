@@ -28,13 +28,13 @@ const Menu = () => {
         <div className="nav__wrapper">
             <div className="container">
               <nav className="nav">
-                <Link to="#" className="nav__brand">
-                  Logo
+                <Link to="#" className="nav__brand" style={{ color: '#fff', textDecoration: 'none'}}>
+                <img src="http://setydeias.com.br/wp-content/uploads/2020/02/Nome-da-Logo-1-1.png" width="200" height="40" alt="" loading="lazy" />
                 </Link>
                 <ul className={collapse}>
                   {navItems.map((item) => (
                     <li key={item.id} className="nav__item">
-                      <Link to={item.href} className="nav__link">
+                      <Link to={item.href} className="nav__link" style={{ color: '#fff', textDecoration: 'none'}}>
                         {item.label}
                       </Link>
                     </li>

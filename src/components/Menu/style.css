@@ -12,9 +12,6 @@ body {
   font-family: "Poppins", sans-serif;
 }
 
-Link {
-  text-decoration: none;
-}
 
 li {
   list-style: none;
@@ -36,7 +33,7 @@ li {
 /* Navbar */
 
 .nav__wrapper {
-  background: #008080;
+  background: #fff;
 }
 
 .nav {
