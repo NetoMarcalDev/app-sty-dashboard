@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getClients } from '../../api/Clients/Clientes';
-
 import Menu from '../../components/Menu';
-
 
 const Clients = () => {
 

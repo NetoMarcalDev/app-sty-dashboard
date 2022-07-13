@@ -6,6 +6,7 @@ import PrivateRoute from './auth';
 import LogOut from './pages/LogOut';
 import Clients from './pages/Clientes';
 
+
 //import { AuthProvider } from './contexts/auth';
 
 const AppRoutes = () => {

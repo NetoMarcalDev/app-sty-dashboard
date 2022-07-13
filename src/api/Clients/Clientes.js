@@ -7,3 +7,7 @@ export const getClients =  async () => {
     return response;
 }
 
+export const registerCliente = () => {
+    
+}
+

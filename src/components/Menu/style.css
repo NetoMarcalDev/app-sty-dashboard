@@ -33,7 +33,7 @@ li {
 /* Navbar */
 
 .nav__wrapper {
-  background: #fff;
+  background: #008080;
 }
 
 .nav {
@@ -44,8 +44,8 @@ li {
 }
 
 .nav__brand {
-  font-size: 30px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 300;
   color: #ddd;
 }
 
@@ -79,7 +79,7 @@ li {
   }
   .nav__menu {
     position: fixed;
-    background: teal;
+    background: #008080;
     flex-direction: column;
     top: 10vh;
     width: 50%;

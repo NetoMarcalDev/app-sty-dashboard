@@ -1,6 +1,7 @@
 import React, { useEffect, useState }  from 'react';
 import { Link } from 'react-router-dom';
 import './style.css';
+import logImg from '../img/logo.png';
 import { getTopNav } from '../../data/navbars';
 
 const Menu = () => {
@@ -29,7 +30,8 @@ const Menu = () => {
             <div className="container">
               <nav className="nav">
                 <Link to="#" className="nav__brand" style={{ color: '#fff', textDecoration: 'none'}}>
-                <img src="http://setydeias.com.br/wp-content/uploads/2020/02/Nome-da-Logo-1-1.png" width="200" height="40" alt="" loading="lazy" />
+                  {/*<img src="http://setydeias.com.br/wp-content/uploads/2020/02/Nome-da-Logo-1-1.png" width="200" height="40" alt="" loading="lazy" />*/}
+                  <img src={logImg} width="50" height="50" alt="" loading="lazy" /> Painel Setydeias
                 </Link>
                 <ul className={collapse}>
                   {navItems.map((item) => (

@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Form, FormGroup, Label, Input, Button, Alert } from 'reactstrap';
+import React, { Component, createRef } from 'react';
+import { Form, FormGroup, Label, Button, Alert } from 'reactstrap';
 import { login } from '../../api/User/Login';
 
 
@@ -10,6 +10,9 @@ export default class Login extends Component {
         this.state = {
             message: this.props.location.state ? this.props.location.state.message : '',
         }
+
+        this.inputUserRef = createRef();
+        this.inputPasswordRef = createRef();
     }
 
     handleSubmit = async (e) => {
@@ -23,12 +26,10 @@ export default class Login extends Component {
             if (this.testUserName() && this.testUserPassword()) {
                                 
                 const resp = await login(data) 
-                
-                console.log(resp)
 
                 if (resp.status === 200) {
-
                   localStorage.setItem('token', resp.data.access_token)
+                  localStorage.setItem('description_user', resp.data.user.description_user)
                   this.props.history.push("/admin");
                   return;
                 }
@@ -48,7 +49,8 @@ export default class Login extends Component {
         
         this.setState({ message: ''});
 
-        if(this.description_user ===  undefined){            
+        if(this.description_user ===  undefined){   
+            this.inputUserRef.current.focus();         
             this.setState({ message: 'Favor informar o usuário.'});
             return false;
         }
@@ -60,6 +62,7 @@ export default class Login extends Component {
         this.setState({ message: ''});
 
         if(this.password_user === undefined){
+            this.inputPasswordRef.current.focus(); 
             this.setState({ message: 'Favor informar a senha.'});
             return false;
         }
@@ -78,12 +81,15 @@ export default class Login extends Component {
                 }
                 <Form>
                     <FormGroup>
-                        <Label for='description_user'>Usuário</Label>
-                        <Input type='text' id='description_user' autoFocus onChange={e => this.description_user = e.target.value } placeholder='Informe o usuário' />
+                        <label for='description_user'>Usuário</label>
+                        <input type='text' id='description_user' className='form-control is-valid'  autoFocus ref={ this.inputUserRef } onChange={e => this.description_user = e.target.value } placeholder='Informe o usuário' />
+                        <div class="valid-feedback">
+                            Looks good!
+                        </div>
                     </FormGroup>
                     <FormGroup>
                         <Label for='password_user'>Senha</Label>
-                        <Input type='password' id='password_user' onChange={e => this.password_user = e.target.value } placeholder='Informe a senha' />
+                        <input type='password' id='password_user' className='form-control' ref={ this.inputPasswordRef } onChange={e => this.password_user = e.target.value } placeholder='Informe a senha' />
                     </FormGroup>
                     <Button color='primary' block onClick={(e) => this.handleSubmit(e)}>Entrar </Button>
                 </Form>
