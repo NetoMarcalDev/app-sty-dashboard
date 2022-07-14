@@ -87,6 +87,7 @@ li {
     right: 0;
     transform: translateX(100%);
     transition: 0.5s ease;
+    z-index: 1;
   }
 }
 

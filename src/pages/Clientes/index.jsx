@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getClients } from '../../api/Clients/Clientes';
+import { getCustomer } from '../../api/Clients/Clientes';
 import Menu from '../../components/Menu';
 
 const Clients = () => {
@@ -16,7 +16,7 @@ const Clients = () => {
     
         try {
           
-            const resp = await getClients();
+            const resp = await getCustomer();
 
             if (resp.status === 201) {
                 setList((prev) => (

@@ -4,7 +4,8 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import PrivateRoute from './auth';
 import LogOut from './pages/LogOut';
-import Clients from './pages/Clientes';
+import Customer from './pages/Costumer';
+import CustomerRegister from './pages/Costumer/Register';
 
 
 //import { AuthProvider } from './contexts/auth';
@@ -17,7 +18,8 @@ const AppRoutes = () => {
         <Route exact path="/" component={ Login } />
         <PrivateRoute path="/admin" component={ Dashboard } />
         <Route exact path="/logout" component={ LogOut } />
-        <Route exact path="/clients" component={ Clients } />
+        <Route exact path="/clients" component={ Customer } />
+        <Route exact path="/clients/register" component={ CustomerRegister } />
       </Switch>
     </Router>
   );

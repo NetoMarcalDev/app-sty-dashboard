@@ -82,10 +82,7 @@ export default class Login extends Component {
                 <Form>
                     <FormGroup>
                         <label for='description_user'>Usuário</label>
-                        <input type='text' id='description_user' className='form-control is-valid'  autoFocus ref={ this.inputUserRef } onChange={e => this.description_user = e.target.value } placeholder='Informe o usuário' />
-                        <div class="valid-feedback">
-                            Looks good!
-                        </div>
+                        <input type='text' id='description_user' className='form-control'  autoFocus ref={ this.inputUserRef } onChange={e => this.description_user = e.target.value } placeholder='Informe o usuário' />
                     </FormGroup>
                     <FormGroup>
                         <Label for='password_user'>Senha</Label>
