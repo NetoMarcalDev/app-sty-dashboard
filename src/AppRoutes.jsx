@@ -6,7 +6,7 @@ import PrivateRoute from './auth';
 import LogOut from './pages/LogOut';
 import Customer from './pages/Costumer';
 import CustomerRegister from './pages/Costumer/Register';
-
+import NotFound from './pages/NotFound';
 
 //import { AuthProvider } from './contexts/auth';
 
@@ -20,6 +20,7 @@ const AppRoutes = () => {
         <Route exact path="/logout" component={ LogOut } />
         <Route exact path="/clients" component={ Customer } />
         <Route exact path="/clients/register" component={ CustomerRegister } />
+        <Route component={NotFound} />
       </Switch>
     </Router>
   );

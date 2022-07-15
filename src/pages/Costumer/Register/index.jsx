@@ -1,31 +1,78 @@
-import React from 'react';
+import React, { useState } from 'react';
 import CostumerRegisterComponent from '../../../components/Costumer/Register';
 import Menu from '../../../components/Menu';
 import { registerCustomer } from '../../../api/Clients/Clientes';
+import axios from 'axios';
+import { Alert } from 'reactstrap';
+import ModalContirm from '../../../components/Modal/Confirm';
 
 const CostumerRegister = () => {   
 
     const clientDefault = {
-        name_application_bb: "sty_api_testes",
-        id_application_bb: "36927",
-        developer_application_key : "7091708b0cffbee0136fe18140050456b9f1a5bc",
-        client_id: "eyJpZCI6IjM3N2ZjNTktOTEiLCJjb2RpZ29QdWJsaWNhZG9yIjowLCJjb2RpZ29Tb2Z0d2FyZSI6MjY5OTMsInNlcXVlbmNpYWxJbnN0YWxhY2FvIjoxfQ",
-        client_secret: "eyJpZCI6IjZkMzU2YzgtMWMxMC00YzFlLWIxM2ItYjBhZGNlZmNmNWNmOCIsImNvZGlnb1B1YmxpY2Fkb3IiOjAsImNvZGlnb1NvZnR3YXJlIjoyNjk5Mywic2VxdWVuY2lhbEluc3RhbGFjYW8iOjEsInNlcXVlbmNpYWxDcmVkZW5jaWFsIjoyLCJhbWJpZW50ZSI6InByb2R1Y2FvIiwiaWF0IjoxNjUyMTI1Njc5Mjk5fQ",
-        document_type: "1",
-        document: "03377700000178",
-        description: "Setydeias Serviços LTDA",
-        date: "2022-07-17",
-        address: "Rua, Lineu Machado, 777",
-        city: "Fortaleza",
-        uf: "CE",
-        cep: "60520101",
-        access_key: ""
+        name_application_bb: '',
+        id_application_bb: '',
+        developer_application_key : '',
+        client_id: '',
+        client_secret: '',
+        document_type:'',
+        document: '',
+        description: '',
+        date: '',
+        address: '',
+        city: '',
+        uf: '',
+        cep: '',
+        access_key: ''
+    }
+    const modalDefault = { 
+        modal: false, 
+        titulo: '', 
+        texto: '', 
+        acao1: '', 
+        acao2: '' 
+    }
+
+    const [message, setMessage] = useState('');
+    const [customer, setCustomer] = useState(() => clientDefault);
+
+    const [modal, setModal] = useState(modalDefault);
+    const toggle = () => setModal(!modal);
+
+    const register = async (e) => {
+
+        e.preventDefault(); 
+        
+        axios.post('https://fortalcenter.com.br:3001/api/painel/clients/create', clientDefault, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+        .then((res) => {
+            console.log(res.status)
+        })
+        .catch((error) => {
+          setMessage(() => error.response.data.message);
+          
+          setModal({
+            ...modal,
+            modal: true,
+            titulo: 'Informação',
+            texto: error.response.data.message,
+            acao1: 'OK'
+          })
+        })
     }
 
     return(
         <>
             <Menu />
-            <button onClick={() => registerCustomer(clientDefault) }>Teste</button>
+            <button onClick={(e) => register(e) }>Teste</button>
+            {
+                message !== '' ? (
+                    <Alert color='danger'>{ message }</Alert>
+                ) : ''
+            }
+            <ModalContirm modal={modal} toggle={toggle} />  
         </>
     )
 }
