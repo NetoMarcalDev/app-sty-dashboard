@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import CostumerRegisterComponent from '../../../components/Costumer/Register';
+import RegisterCostumer from '../../../components/Costumer/Register';
 import Menu from '../../../components/Menu';
 import { registerCustomer } from '../../../api/Clients/Clientes';
 import axios from 'axios';
-import { Alert } from 'reactstrap';
 import ModalContirm from '../../../components/Modal/Confirm';
 
 const CostumerRegister = () => {   
@@ -14,15 +13,16 @@ const CostumerRegister = () => {
         developer_application_key : '',
         client_id: '',
         client_secret: '',
-        document_type:'',
+        copiar_basica: '',
+        document_type: 1,
         document: '',
         description: '',
-        date: '',
+        date: '',   
+        district: '',     
         address: '',
         city: '',
         uf: '',
         cep: '',
-        access_key: ''
     }
     const modalDefault = { 
         modal: false, 
@@ -32,7 +32,6 @@ const CostumerRegister = () => {
         acao2: '' 
     }
 
-    const [message, setMessage] = useState('');
     const [customer, setCustomer] = useState(() => clientDefault);
 
     const [modal, setModal] = useState(modalDefault);
@@ -51,8 +50,6 @@ const CostumerRegister = () => {
             console.log(res.status)
         })
         .catch((error) => {
-          setMessage(() => error.response.data.message);
-          
           setModal({
             ...modal,
             modal: true,
@@ -63,16 +60,63 @@ const CostumerRegister = () => {
         })
     }
 
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+          // Fetch all the forms we want to apply custom Bootstrap validation styles to
+          var forms = document.getElementsByClassName('needs-validation');
+          // Loop over them and prevent submission
+          var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+              if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add('was-validated');
+            }, false);
+          });
+        }, false);
+      })();
+    
+    const teste = (e) => {
+       
+        setModal({
+            ...modal,
+            modal: true,
+            titulo: 'Informação',
+            texto: `
+            Nome app: ${customer.name_application_bb} -  
+            ID app: ${customer.id_application_bb} - 
+            Chave desenvolvedor:${customer.developer_application_key} - 
+            Cliente Id: ${customer.client_id} - 
+            Segredo do cliente: ${customer.client_secret} - 
+            Copia Básica: ${customer.copiar_basica} - 
+            Tipo Documento: ${customer.document_type} - 
+            Documento: ${customer.document} -  
+            Data cadastro:${customer.date} - 
+            Descrição: ${customer.description} - 
+            CEP: ${customer.cep} - 
+            Cidade: ${customer.city} - 
+            UF: ${customer.uf} - 
+            Bairro: ${customer.district} - 
+            Endereço: ${customer.address} - 
+            `,
+            acao1: 'OK'
+          })
+    }
+
     return(
         <>
             <Menu />
-            <button onClick={(e) => register(e) }>Teste</button>
-            {
-                message !== '' ? (
-                    <Alert color='danger'>{ message }</Alert>
-                ) : ''
-            }
-            <ModalContirm modal={modal} toggle={toggle} />  
+            <RegisterCostumer 
+                customer={customer} 
+                setCustomer={setCustomer} 
+                teste={teste}
+            />
+            <ModalContirm 
+                modal={modal} 
+                toggle={toggle} 
+            />  
         </>
     )
 }
