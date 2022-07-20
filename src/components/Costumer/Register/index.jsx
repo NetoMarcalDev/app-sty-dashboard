@@ -3,7 +3,19 @@ import './style.css';
 
 const RegisterCostumer = (props) => { 
     
-  const [formErrors, setFormErrors] = useState({});
+  const dataDefault = {
+    erro: 'Campo obrigatório!',
+    validate: 'form-control'
+  } 
+  const statusFormDefault =  {
+    name_application_bb: dataDefault,
+    id_application_bb: dataDefault,
+    developer_application_key: dataDefault,
+    client_id: dataDefault,
+    client_secret: dataDefault
+  }
+
+  const [formStatus, setFormStatus] = useState(()=>statusFormDefault);
   const [isSubmit, setIsSubmit] = useState(false);
 
   const handleChange = (e) => {
@@ -16,67 +28,169 @@ const RegisterCostumer = (props) => {
     id_application_bb: createRef()
   }
 
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    setFormErrors(validate(props.customer));
     setIsSubmit(true);
+    
+    if (validate()) {
+      console.log(props.customer);
+      return;
+    }    
   };
 
-  useEffect(() => {
-    console.log(formErrors);
-    if (Object.keys(formErrors).length === 0 && isSubmit) {
+  /*useEffect(() => {
+    console.log(errors);
+    if (Object.keys(errors).length === 0 && isSubmit) {
       console.log(props.customer);
     }
-  }, [formErrors]);
+  }, [errors]);*/
 
-  const validate = (values) => { 
-    const errors = {};
+  const validate = () => {    
 
-    if (!values.name_application_bb) {
-      errors.name_application_bb = "O nome da aplicação é obrigatório!";
+    if (testNameApplication() && 
+          testIdApplication() &&
+          testDeveloperApplicationKey() &&
+          testClientId()
+      )
+    {
+      return true;
     }
-    if (!values.id_application_bb) {
-      errors.id_application_bb = "O Id do app é Obrigatório!";
+    return false;
+  }
+
+  const testNameApplication = () => {
+    if (!props.customer.name_application_bb) {
+      setFormStatus({...formStatus, 
+        name_application_bb: {
+          erro: 'Campo obrigatório!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      //references.name_application_bb.current.focus();
+      return false;
     }
-    if (!values.developer_application_key) {
-      errors.developer_application_key = "Chave desenvolvedor é obrigatória!";
+    setFormStatus({...formStatus, 
+      name_application_bb: {
+        erro: '',
+        validate: 'form-control is-valid'
+      }
+    });
+    return true;
+  }
+
+  const testIdApplication = () => {
+    if (!props.customer.id_application_bb) {
+      setFormStatus({...formStatus, 
+        id_application_bb: {
+          erro: 'Campo obrigatório!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      return false;
     }
-    return errors;
+    setFormStatus({...formStatus, 
+      id_application_bb: {
+        erro: '',
+        validate: 'form-control is-valid'
+      }
+    });
+    return true;
+  }
+
+   const testDeveloperApplicationKey = () => {
+    if (!props.customer.developer_application_key) {
+      setFormStatus({...formStatus, 
+        developer_application_key: {
+          erro: 'Campo obrigatório!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      return false;
+    }
+    setFormStatus({...formStatus, 
+      developer_application_key: {
+        erro: '',
+        validate: 'form-control is-valid'
+      }
+    });
+    return true;
+  }
+
+  const testClientId = () => {
+    if (!props.customer.client_id) {
+      setFormStatus({...formStatus, 
+        client_id: {
+          erro: 'Campo obrigatório!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      return false;
+    }
+    setFormStatus({...formStatus, 
+      client_id: {
+        erro: '',
+        validate: 'form-control is-valid'
+      }
+    });
+    return true;
+  }
+
+  const testClientSecret = () => {
+    if (!props.customer.client_secret) {
+      setFormStatus({...formStatus, 
+        client_secret: {
+          erro: 'Campo obrigatório!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      return false;
+    }
+    setFormStatus({...formStatus, 
+      client_secret: {
+        erro: '',
+        validate: 'form-control is-valid'
+      }
+    });
+    return true;
   }
 
   return(
     <div className='container-sm'>
       <h4 className='title-page'>Cadastar Cliente</h4>
       <form onSubmit={handleSubmit}>         
-          <div className="form-row">
+      <div className="form-row">
             <div className="col-md-6 mb-3">
               <label>Nome app</label>
               <input 
                 type="text" 
-                className={formErrors.name_application_bb ? "form-control is-invalid" : "form-control is-valid"} 
-                ref={references.name_application_bb}
-                name="name_application_bb" 
+                className={formStatus.name_application_bb.validate}
+                ref={ references.name_application_bb }
+                name='name_application_bb'
                 autoFocus 
                 onChange={handleChange}
-                onBlur={handleSubmit}
+                onBlur={testNameApplication}
+                required
                 placeholder='Nome do aplicativo no BB developer' 
               />
-              <div className="invalid-feedback">
-                {formErrors.name_application_bb}
+               <div className="invalid-feedback">
+                { formStatus.name_application_bb.erro }
               </div>
             </div>
             <div className="col-md-6 mb-3">
               <label>ID app</label>
               <input 
                 type="text" 
-                className={formErrors.id_application_bb ? "form-control is-invalid" : "form-control is-valid"}  
-                name="id_application_bb" 
-                onChange={handleChange}
-                onBlur={handleSubmit}
+                className={formStatus.id_application_bb.validate}  
+                ref={ references.id_application_bb}
+                name="id_application_bb"     
+                onChange={handleChange}  
+                onBlur={testIdApplication}
+                required       
                 placeholder='O Id do aplicativo no BB developer'
               />
               <div className="invalid-feedback">
-                {formErrors.id_application_bb}
+                { formStatus.id_application_bb.erro }
               </div>
             </div>
           </div>
@@ -84,15 +198,47 @@ const RegisterCostumer = (props) => {
             <div className="col-md-12 mb-3">
               <label>Chave desenvolvedor</label>
               <textarea  
-                className={formErrors.developer_application_key ? "form-control is-invalid" : "form-control is-valid"} 
+                className={formStatus.developer_application_key.validate}
                 name="developer_application_key" 
-                onChange={handleChange}
-                onBlur={handleSubmit}
-                //required 
+                onChange={handleChange} 
+                onBlur={testDeveloperApplicationKey}
+                required 
                 placeholder='É a credencial para acionar as APIS do Banco do Brasil.' 
               />
               <div className="invalid-feedback">
-                {formErrors.developer_application_key}
+                { formStatus.developer_application_key.erro }
+              </div>
+            </div>
+          </div>
+          <div className='form-row'>
+            <div className="col-md-12 mb-3">
+              <label>Cliente Id</label>
+              <textarea  
+                className={formStatus.client_id.validate}
+                name="client_id" 
+                onChange={handleChange}
+                onBlur={testClientId}
+                required 
+                placeholder='É o identificador público e único no OAuth do Banco do Brasil.' 
+              />
+              <div className="invalid-feedback">
+                { formStatus.client_id.erro }
+              </div>
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="col-md-12 mb-3">
+              <label>Segredo do cliente</label>
+              <textarea  
+                className={formStatus.client_secret.validate}
+                name="client_secret" 
+                onChange={handleChange}
+                onBlur={testClientSecret}
+                required
+                placeholder='É conhecido apenas para sua aplicação e o servidor de autorização.'
+              />
+              <div className="invalid-feedback">
+                { formStatus.client_secret.erro }
               </div>
             </div>
           </div>         
@@ -103,7 +249,7 @@ const RegisterCostumer = (props) => {
           >
             Cadastrar
           </button>
-     </form>
+      </form>
     </div>
   )
 }
