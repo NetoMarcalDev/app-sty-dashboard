@@ -28,3 +28,8 @@ export function testValidPhone(number) {
   } 
     
 }
+
+export function isValibCep (cep) {
+	const pattern = /^[0-9]{2}.[0-9]{3}-[0-9]{3}$/;
+	return pattern.test(cep);
+}
