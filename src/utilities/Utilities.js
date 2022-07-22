@@ -33,3 +33,8 @@ export function isValibCep (cep) {
 	const pattern = /^[0-9]{2}.[0-9]{3}-[0-9]{3}$/;
 	return pattern.test(cep);
 }
+
+export function isValidUf (uf) {
+	const pattern = /^[A-Z]{2}$/;
+	return pattern.test(uf);
+}

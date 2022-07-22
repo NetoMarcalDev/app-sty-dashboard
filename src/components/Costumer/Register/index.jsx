@@ -1,7 +1,8 @@
 import React, { useState, useEffect, createRef } from 'react';
 import './style.css';
-import { isValibCep } from '../../../utilities/Utilities';
-import { maskCep, maskTelefone } from '../../../utilities/masks';
+import { isValibCep, isValidUf } from '../../../utilities/Utilities';
+import { maskCep, noMask } from '../../../utilities/masks';
+import { getCep } from '../../../api/Correios/Services';
 
 const RegisterCostumer = (props) => { 
     
@@ -39,13 +40,21 @@ const RegisterCostumer = (props) => {
   const handleChangeMaskCep = (e) => { 
     e.preventDefault();
     
-    maskCep(e)
+    maskCep(e);
+    props.setCustomer({ ...props.customer, [e.target.name]: e.target.value });
+  }
+
+  const handleChangeMaskUf = (e) => { 
+    e.preventDefault();
+
     props.setCustomer({ ...props.customer, [e.target.name]: e.target.value });
   }
 
   const references = {
     name_application_bb: createRef(),
-    id_application_bb: createRef()
+    id_application_bb: createRef(),
+    address: createRef(),
+
   }
 
 
@@ -65,6 +74,37 @@ const RegisterCostumer = (props) => {
       console.log(props.customer);
     }
   }, [errors]);*/
+
+  const searchCep = async (e) => { 
+
+     if(testCep()){
+
+      const resp = await getCep(noMask(e.target.value));
+      console.log(resp.data);
+
+      document.getElementById('city').value = resp.data.localidade;
+      document.getElementById('uf').value = resp.data.uf;
+      document.getElementById('district').value = resp.data.bairro;
+      document.getElementById('address').value = resp.data.logradouro; 
+      
+      setFormStatus({...formStatus, 
+        address: {
+          erro: '',
+          validate: 'form-control is-valid',
+          complement: 'Complemento: { ' + resp.data.complemento + ' }',
+          feedback: 'valid-feedback'
+        }
+      });
+
+      props.setCustomer({ ...props.customer,
+       ...{ city: resp.data.localidade, 
+        uf: resp.data.uf,
+        district: resp.data.bairro,
+        address: resp.data.logradouro}
+      });
+      
+    }
+  }
 
   const validate = () => {    
 
@@ -339,6 +379,15 @@ const RegisterCostumer = (props) => {
       });
       return false;
     }
+    if (!isValidUf(props.customer.uf)) {
+      setFormStatus({...formStatus, 
+        uf: {
+          erro: 'UF inválido!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      return false;
+    }
     setFormStatus({...formStatus, 
       uf: {
         erro: '',
@@ -554,14 +603,14 @@ const RegisterCostumer = (props) => {
             </div>                            
           </div>
           <div className="form-row">
-            <div className="col-md-4 mb-3">
+            <div className="col-md-3 mb-3">
               <label>CEP</label>
               <input 
                 type="text" 
                 className={formStatus.cep.validate} 
                 name="cep" 
                 onChange={handleChangeMaskCep}
-                onBlur={testCep}
+                onBlur={searchCep}
                 required  
                 placeholder='CEP'
               />
@@ -569,12 +618,13 @@ const RegisterCostumer = (props) => {
                 { formStatus.cep.erro } 
               </div>
             </div> 
-            <div className="col-md-4 mb-3">
+            <div className="col-md-7 mb-3">
               <label>Cidade</label>
               <input 
                 type="text" 
                 className={formStatus.city.validate} 
-                name="city"
+                name="city" 
+                id='city'               
                 onChange={handleChange}
                 onBlur={testCity}
                 required  
@@ -584,30 +634,79 @@ const RegisterCostumer = (props) => {
                 { formStatus.city.erro  } 
               </div>
             </div>  
-            <div className="col-md-4 mb-3">
+            <div className="col-md-2 mb-3">
               <label>UF</label>
-              <input 
+              <select 
                 type="text" 
                 className={formStatus.uf.validate}  
                 name="uf" 
-                onChange={handleChange} 
+                id='uf'
+                onChange={handleChangeMaskUf} 
                 onBlur={testUf}
                 required  
                 placeholder='UF'
                 maxLength={2}
-              />
+              >
+                <option value=''></option>
+                <option value='AC'>AC</option>
+                <option value='AL'>AL</option>
+                <option value='AP'>AP</option>
+                <option value='AM'>AM</option>
+                <option value='BA'>BA</option>
+                <option value='CE'>CE</option>
+                <option value='DF'>DF</option>
+                <option value='ES'>ES</option>
+                <option value='GO'>GO</option>
+                <option value='MA'>MA</option>
+                <option value='MT'>MT</option>
+                <option value='MS'>MS</option>
+                <option value='MG'>MG</option>
+                <option value='PA'>PA</option>
+                <option value='PB'>PB</option>
+                <option value='BR'>PR</option>
+                <option value='PE'>PE</option>
+                <option value='PI'>PI</option>
+                <option value='RJ'>RJ</option>
+                <option value='RN'>RN</option>
+                <option value='RS'>RS</option>
+                <option value='RO'>RO</option>
+                <option value='RR'>RR</option>
+                <option value='SC'>SC</option>
+                <option value='SP'>SP</option>
+                <option value='SE'>SE</option>
+                <option value='TO'>TO</option>
+              </select>
               <div className="invalid-feedback">
                 { formStatus.uf.erro  }
               </div>
             </div>                                   
           </div>
           <div className='form-row'>
+          <div className="col-md-8 mb-3">
+              <label>Endereço </label>{formStatus.address.complement ? <a href='https://buscacepinter.correios.com.br/app/localidade_logradouro/index.php'  target="blank">: Buscar CEP</a> : ''}
+              <input 
+                type="text" 
+                className={formStatus.address.validate}
+                name="address"
+                id='address'
+                ref={ references.address }
+                onChange={handleChange}
+                onBlur={testAddress}
+                required  
+                placeholder='Endereço'
+              />
+              <div className={formStatus.address.complement ? 'valid-feedback' : 'invalid-feedback'}>
+                { formStatus.address.erro }
+                { formStatus.address.complement }
+              </div>
+            </div>
             <div className="col-md-4 mb-3">
               <label>Bairro</label>
               <input 
                 type="text" 
                 className={formStatus.district.validate} 
                 name="district" 
+                id='district'
                 onChange={handleChange}
                 onBlur={testDistrict}
                 required  
@@ -615,22 +714,7 @@ const RegisterCostumer = (props) => {
               <div className="invalid-feedback">
                 { formStatus.district.erro  } 
               </div>
-            </div>
-            <div className="col-md-8 mb-3">
-              <label>Endereço</label>
-              <input 
-                type="text" 
-                className={formStatus.address.validate}
-                name="address"
-                onChange={handleChange}
-                onBlur={testAddress}
-                required  
-                placeholder='Endereço'
-              />
-              <div className="invalid-feedback">
-                {formStatus.address.erro}
-              </div>
-            </div>    
+            </div>               
           </div>          
 
           <button 

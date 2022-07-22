@@ -33,7 +33,7 @@ export function maskTelefone2(value) {
   return value;
 }
 
-export function  noMaskTelefone(numero) {
+export function  noMask(numero) {
 
   let padrao = '';
   
@@ -59,3 +59,4 @@ export function maskCep(e) {
   e.currentTarget.value = value;
   return e;
 }
+
