@@ -1,7 +1,7 @@
 import React, { useState, useEffect, createRef } from 'react';
 import './style.css';
 import { isValibCep, isValidUf } from '../../../utilities/Utilities';
-import { maskCep, noMask } from '../../../utilities/masks';
+import { noMask, maskCep, maskCPF, maskCNPJ } from '../../../utilities/masks';
 import { getCep } from '../../../api/Correios/Services';
 
 const RegisterCostumer = (props) => { 
@@ -32,6 +32,13 @@ const RegisterCostumer = (props) => {
   const [formStatus, setFormStatus] = useState(()=>statusFormDefault);
   const [isSubmit, setIsSubmit] = useState(false);
 
+  const references = {
+    name_application_bb: createRef(),
+    id_application_bb: createRef(),
+    address: createRef(),
+
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     props.setCustomer({ ...props.customer, [name]: value });
@@ -43,18 +50,25 @@ const RegisterCostumer = (props) => {
     maskCep(e);
     props.setCustomer({ ...props.customer, [e.target.name]: e.target.value });
   }
-
+  
   const handleChangeMaskUf = (e) => { 
     e.preventDefault();
 
     props.setCustomer({ ...props.customer, [e.target.name]: e.target.value });
   }
 
-  const references = {
-    name_application_bb: createRef(),
-    id_application_bb: createRef(),
-    address: createRef(),
+  const handleChangeMaskCPF = (e) => { 
+    e.preventDefault();
+    
+    maskCPF(e);
+    props.setCustomer({ ...props.customer, [e.target.name]: e.target.value });
+  }
 
+  const handleChangeMaskCNPJ = (e) => { 
+    e.preventDefault();
+    
+    maskCNPJ(e);
+    props.setCustomer({ ...props.customer, [e.target.name]: e.target.value });
   }
 
 
@@ -555,15 +569,14 @@ const RegisterCostumer = (props) => {
               </div>
             </div>
             <div className="col-md-4 mb-3">
-              <label>Documento</label>
+              <label>{props.customer.document_type === 1 ? 'CPF' : 'CNPJ'}</label>
               <input 
                 type="text" 
                 className={formStatus.documento.validate} 
                 name="document" 
-                onChange={handleChange}
+                onChange={props.customer.document_type === 1 ? handleChangeMaskCPF :  handleChangeMaskCNPJ }
                 onBlur={testDocument}
                 required 
-                maxLength={18} 
               />
               <div className="invalid-feedback">
                 { formStatus.documento.erro } 
@@ -603,7 +616,7 @@ const RegisterCostumer = (props) => {
             </div>                            
           </div>
           <div className="form-row">
-            <div className="col-md-3 mb-3">
+            <div className="col-md-2 mb-3">
               <label>CEP</label>
               <input 
                 type="text" 
@@ -618,7 +631,7 @@ const RegisterCostumer = (props) => {
                 { formStatus.cep.erro } 
               </div>
             </div> 
-            <div className="col-md-7 mb-3">
+            <div className="col-md-5 mb-3">
               <label>Cidade</label>
               <input 
                 type="text" 
@@ -634,7 +647,7 @@ const RegisterCostumer = (props) => {
                 { formStatus.city.erro  } 
               </div>
             </div>  
-            <div className="col-md-2 mb-3">
+            <div className="col-md-1 mb-3">
               <label>UF</label>
               <select 
                 type="text" 
@@ -679,11 +692,55 @@ const RegisterCostumer = (props) => {
               <div className="invalid-feedback">
                 { formStatus.uf.erro  }
               </div>
-            </div>                                   
+            </div>  
+            <div className="col-md-4 mb-3">
+              <label>Bairro</label>
+              <input 
+                type="text" 
+                className={formStatus.district.validate} 
+                name="district" 
+                id='district'
+                onChange={handleChange}
+                onBlur={testDistrict}
+                required  
+                placeholder='Bairro'/>
+              <div className="invalid-feedback">
+                { formStatus.district.erro  } 
+              </div>
+            </div>                                        
           </div>
           <div className='form-row'>
+          <div className="col-md-2 mb-3">
+              <label>Tipo</label>
+              <select 
+                type="text" 
+                className={formStatus.district.validate} 
+                name="district" 
+                id='district'
+                onChange={handleChange}
+                onBlur={testDistrict}
+                required  
+                placeholder='Tipos de logradouro'
+              >
+                 <option value=''></option>
+                 <option value='Aeroporto'>Aeroporto</option>
+                 <option value='Alameda'>Alameda</option>
+                 <option value='Área'>Área</option>
+                 <option value='Avenida'>Avenida</option>
+                 <option value='Chácara'>Chácara</option>
+                 <option value='Colônia'>Colônia</option>
+                 <option value='Condomínio'>Condomínio</option>
+                 <option value=''></option>
+                 <option value='Conjunto'>Conjunto</option>
+                 <option value=''></option>
+              </select>
+
+              <div className="invalid-feedback">
+                { formStatus.district.erro  } 
+              </div>
+            </div>    
           <div className="col-md-8 mb-3">
-              <label>Endereço </label>{formStatus.address.complement ? <a href='https://buscacepinter.correios.com.br/app/localidade_logradouro/index.php'  target="blank">: Buscar CEP</a> : ''}
+              <label>Logradouro </label>{formStatus.address.complement ? <a href='https://buscacepinter.correios.com.br/app/localidade_logradouro/index.php'  target="blank">: Buscar CEP</a> : ''}
               <input 
                 type="text" 
                 className={formStatus.address.validate}
@@ -700,22 +757,38 @@ const RegisterCostumer = (props) => {
                 { formStatus.address.complement }
               </div>
             </div>
-            <div className="col-md-4 mb-3">
-              <label>Bairro</label>
+            <div className="col-md-2 mb-3">
+              <label>Nº</label>
               <input 
                 type="text" 
                 className={formStatus.district.validate} 
                 name="district" 
                 id='district'
-                onChange={handleChange}
-                onBlur={testDistrict}
+                onChange={() =>{}}
+                onBlur={() =>{}}
                 required  
-                placeholder='Bairro'/>
+                placeholder='Nº/Apto/Casa'/>
               <div className="invalid-feedback">
                 { formStatus.district.erro  } 
               </div>
             </div>               
-          </div>          
+          </div>
+          <div className="form-row">
+            <div className="col-md-12 mb-3">
+              <label>Complemento</label>
+              <textarea  
+                className='form-control' 
+                name="complement" 
+                onChange={()=>{}}
+                onBlur={()=>{}}
+                required
+                placeholder='Ponto de referência...'
+              />
+              <div className="invalid-feedback">
+                { formStatus.copiar_basica.erro }
+              </div>
+            </div>
+          </div>         
 
           <button 
             className="btn btn-block btn-margin" 
