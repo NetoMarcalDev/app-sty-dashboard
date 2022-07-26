@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createRef } from 'react';
 import './style.css';
-import { isValibCep, isValidUf } from '../../../utilities/Utilities';
+import { isValibCep, isValidUf, isValidCPF, isValidCNPJ } from '../../../utilities/Utilities';
 import { noMask, maskCep, maskCPF, setMaskCPF, maskCNPJ, setMaskCNPJ } from '../../../utilities/masks';
 import { getCep } from '../../../api/Correios/Services';
 
@@ -39,7 +39,8 @@ const RegisterCostumer = (props) => {
     name_application_bb: createRef(),
     id_application_bb: createRef(),
     address: createRef(),
-    number_address: createRef()
+    number_address: createRef(),
+    document: createRef()
   }
 
   const handleChange = (e) => {
@@ -64,14 +65,14 @@ const RegisterCostumer = (props) => {
     e.preventDefault();
     
     maskCPF(e);
-    props.setCustomer({ ...props.customer, [e.target.name]: e.target.value });
+    props.setCustomer({ ...props.customer, [e.target.name]: noMask(e.target.value) });
   }
 
   const handleChangeMaskCNPJ = (e) => { 
     e.preventDefault();
     
     maskCNPJ(e);
-    props.setCustomer({ ...props.customer, [e.target.name]: e.target.value });
+    props.setCustomer({ ...props.customer, [e.target.name]: noMask(e.target.value) });
   }
 
 
@@ -337,7 +338,10 @@ const RegisterCostumer = (props) => {
   }
 
   const testDocument = () => {
-    if (!props.customer.document) {
+    
+    console.log(isValidCNPJ(props.customer.document))
+
+    /*if (!props.customer.document) {
       setFormStatus({...formStatus, 
         documento: {
           erro: 'Campo obrigatório!',
@@ -346,13 +350,23 @@ const RegisterCostumer = (props) => {
       });
       return false;
     }
+    if (!isValidCNPJ(noMask(props.customer.document))) {
+      setFormStatus({...formStatus, 
+        documento: {
+          erro: 'CNPJ inválido!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      references.document.current.focus();
+      return false;
+    }
     setFormStatus({...formStatus, 
       documento: {
         erro: '',
         validate: 'form-control is-valid'
       }
     });
-    return true;
+    return true;*/
   }
   
   const testCep = () => {
@@ -672,6 +686,7 @@ const RegisterCostumer = (props) => {
                 name="document" 
                 id="document"
                 onChange={props.customer.document_type === 1 ? handleChangeMaskCPF :  handleChangeMaskCNPJ }
+                ref={references.document}
                 onBlur={testDocument}
                 required 
               />
