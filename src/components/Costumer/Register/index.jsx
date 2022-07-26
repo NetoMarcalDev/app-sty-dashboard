@@ -1,7 +1,7 @@
 import React, { useState, useEffect, createRef } from 'react';
 import './style.css';
 import { isValibCep, isValidUf } from '../../../utilities/Utilities';
-import { noMask, maskCep, maskCPF, maskCNPJ } from '../../../utilities/masks';
+import { noMask, maskCep, maskCPF, setMaskCPF, maskCNPJ, setMaskCNPJ } from '../../../utilities/masks';
 import { getCep } from '../../../api/Correios/Services';
 
 const RegisterCostumer = (props) => { 
@@ -26,7 +26,10 @@ const RegisterCostumer = (props) => {
     city: dataDefault,
     uf: dataDefault,
     district: dataDefault,
-    address: dataDefault    
+    type_address: dataDefault,
+    address: dataDefault,
+    number_address: dataDefault, 
+    complement_address: dataDefault,   
   }
 
   const [formStatus, setFormStatus] = useState(()=>statusFormDefault);
@@ -36,7 +39,7 @@ const RegisterCostumer = (props) => {
     name_application_bb: createRef(),
     id_application_bb: createRef(),
     address: createRef(),
-
+    number_address: createRef()
   }
 
   const handleChange = (e) => {
@@ -73,34 +76,41 @@ const RegisterCostumer = (props) => {
 
 
   const handleSubmit = (e) => {
+    
     e.preventDefault();
     setIsSubmit(true);
     
     if (validate()) {
+      
       console.log(props.customer);
+     
       return;
-    }    
+    }
   };
 
   /*useEffect(() => {
+
     console.log(errors);
     if (Object.keys(errors).length === 0 && isSubmit) {
       console.log(props.customer);
     }
-  }, [errors]);*/
+  }, []);*/
 
   const searchCep = async (e) => { 
 
      if(testCep()){
 
       const resp = await getCep(noMask(e.target.value));
+      const logradouro_split = resp.data.logradouro.split(' ', 1);
+
       console.log(resp.data);
 
       document.getElementById('city').value = resp.data.localidade;
       document.getElementById('uf').value = resp.data.uf;
       document.getElementById('district').value = resp.data.bairro;
       document.getElementById('address').value = resp.data.logradouro; 
-      
+      document.getElementById('type_address').value = logradouro_split[0];
+
       setFormStatus({...formStatus, 
         address: {
           erro: '',
@@ -110,13 +120,39 @@ const RegisterCostumer = (props) => {
         }
       });
 
+      setFormStatus({...formStatus, 
+        city: {
+          erro: '',
+          validate: 'form-control is-valid'
+        },
+        uf: {
+          erro: '',
+          validate: 'form-control is-valid'
+        },
+        district: {
+          erro: '',
+          validate: 'form-control is-valid'
+        },
+        address: {
+          erro: '',
+          validate: 'form-control is-valid'
+        },
+        type_address: {
+          erro: '',
+          validate: 'form-control is-valid'
+        }
+      });
+
+      
       props.setCustomer({ ...props.customer,
        ...{ city: resp.data.localidade, 
-        uf: resp.data.uf,
-        district: resp.data.bairro,
-        address: resp.data.logradouro}
+            uf: resp.data.uf,
+            district: resp.data.bairro,
+            address: resp.data.logradouro,
+            type_address: logradouro_split
+          }
       });
-      
+
     }
   }
 
@@ -136,7 +172,10 @@ const RegisterCostumer = (props) => {
           testCity() &&
           testUf()  &&
           testDistrict() &&
-          testAddress()
+          testTypeAddress() &&
+          testAddress() &&
+          testNumberAddress() &&
+          testComplementAdress()
         )
     {
       return true;
@@ -430,6 +469,25 @@ const RegisterCostumer = (props) => {
     return true;
   }
 
+  const testTypeAddress = () => {
+    if (!props.customer.type_address) {
+      setFormStatus({...formStatus, 
+        type_address: {
+          erro: 'Campo obrigatório!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      return false;
+    }
+    setFormStatus({...formStatus, 
+      type_address: {
+        erro: '',
+        validate: 'form-control is-valid'
+      }
+    });
+    return true;
+  }
+
   const testAddress = () => {
     if (!props.customer.address) {
       setFormStatus({...formStatus, 
@@ -442,6 +500,44 @@ const RegisterCostumer = (props) => {
     }
     setFormStatus({...formStatus, 
       address: {
+        erro: '',
+        validate: 'form-control is-valid'
+      }
+    });
+    return true;
+  }
+
+  const testNumberAddress = () => {
+    if (!props.customer.number_address) {
+      setFormStatus({...formStatus, 
+        number_address: {
+          erro: 'Campo obrigatório!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      return false;
+    }
+    setFormStatus({...formStatus, 
+      number_address: {
+        erro: '',
+        validate: 'form-control is-valid'
+      }
+    });
+    return true;
+  }
+
+  const testComplementAdress = () => {
+    if (!props.customer.complement_address) {
+      setFormStatus({...formStatus, 
+        complement_address: {
+          erro: 'Campo obrigatório!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      return false;
+    }
+    setFormStatus({...formStatus, 
+      complement_address: {
         erro: '',
         validate: 'form-control is-valid'
       }
@@ -574,6 +670,7 @@ const RegisterCostumer = (props) => {
                 type="text" 
                 className={formStatus.documento.validate} 
                 name="document" 
+                id="document"
                 onChange={props.customer.document_type === 1 ? handleChangeMaskCPF :  handleChangeMaskCNPJ }
                 onBlur={testDocument}
                 required 
@@ -714,29 +811,62 @@ const RegisterCostumer = (props) => {
               <label>Tipo</label>
               <select 
                 type="text" 
-                className={formStatus.district.validate} 
-                name="district" 
-                id='district'
+                className={formStatus.type_address.validate} 
+                name="type_address" 
+                id='type_address'
                 onChange={handleChange}
-                onBlur={testDistrict}
+                onBlur={testTypeAddress}
                 required  
-                placeholder='Tipos de logradouro'
               >
-                 <option value=''></option>
-                 <option value='Aeroporto'>Aeroporto</option>
-                 <option value='Alameda'>Alameda</option>
-                 <option value='Área'>Área</option>
-                 <option value='Avenida'>Avenida</option>
-                 <option value='Chácara'>Chácara</option>
-                 <option value='Colônia'>Colônia</option>
-                 <option value='Condomínio'>Condomínio</option>
-                 <option value=''></option>
-                 <option value='Conjunto'>Conjunto</option>
-                 <option value=''></option>
+                 <optgroup label="Tipos de Logradouro">
+                    <option value=""></option>
+                    <option value="Aeroporto"> Aeroporto </option>
+                    <option value="Alameda"> Alameda </option>
+                    <option value="Área"> Área </option>
+                    <option value="Avenida"> Avenida </option>
+                    <option value="Chácara"> Chácara </option>
+                    <option value="Colônia"> Colônia </option>
+                    <option value="Condomínio"> Condomínio </option>
+                    <option value="Conjunto"> Conjunto </option>
+                    <option value="Bêco"> Bêco </option>
+                    <option value="Distrito"> Distrito </option>
+                    <option value="Esplanada"> Esplanada </option>
+                    <option value="Estação"> Estação </option>
+                    <option value="Estrada"> Estrada </option>
+                    <option value="Favela"> Favela </option>
+                    <option value="Fazenda"> Fazenda </option>
+                    <option value="Feira"> Feira </option>
+                    <option value="Jardim"> Jardim </option>
+                    <option value="Ladeira"> Ladeira </option>
+                    <option value="Lago"> Lago </option>
+                    <option value="Lagoa"> Lagoa </option>
+                    <option value="Largo"> Largo </option>
+                    <option value="Loteamento"> Loteamento </option>
+                    <option value="Morro"> Morro </option>
+                    <option value="Núcleo"> Núcleo </option>
+                    <option value="Parque"> Parque </option>
+                    <option value="Passarela"> Passarela </option>
+                    <option value="Pátio"> Pátio </option>
+                    <option value="Praça"> Praça </option>
+                    <option value="Quadra"> Quadra </option>
+                    <option value="Recanto"> Recanto </option>
+                    <option value="Residencial"> Residencial </option>
+                    <option value="Rodovia"> Rodovia </option>
+                    <option value="Rua"> Rua </option>
+                    <option value="Setor"> Setor </option>
+                    <option value="Sítio"> Sítio </option>
+                    <option value="Travessa"> Travessa </option>
+                    <option value="Trecho"> Trecho </option>
+                    <option value="Trevo"> Trevo </option>
+                    <option value="Via"> Via </option>
+                    <option value="Viaduto"> Viaduto </option>
+                    <option value="Viela"> Viela </option>
+                    <option value="Vila"> Vila </option>                                         
+                  </optgroup>
               </select>
 
               <div className="invalid-feedback">
-                { formStatus.district.erro  } 
+                { formStatus.type_address.erro  } 
               </div>
             </div>    
           <div className="col-md-8 mb-3">
@@ -761,15 +891,16 @@ const RegisterCostumer = (props) => {
               <label>Nº</label>
               <input 
                 type="text" 
-                className={formStatus.district.validate} 
-                name="district" 
-                id='district'
-                onChange={() =>{}}
-                onBlur={() =>{}}
+                className={formStatus.number_address.validate} 
+                name="number_address" 
+                id='number_address'
+                ref={ references.number_address }
+                onChange={handleChange}
+                onBlur={testNumberAddress}
                 required  
                 placeholder='Nº/Apto/Casa'/>
               <div className="invalid-feedback">
-                { formStatus.district.erro  } 
+                { formStatus.number_address.erro  } 
               </div>
             </div>               
           </div>
@@ -777,15 +908,16 @@ const RegisterCostumer = (props) => {
             <div className="col-md-12 mb-3">
               <label>Complemento</label>
               <textarea  
-                className='form-control' 
-                name="complement" 
-                onChange={()=>{}}
-                onBlur={()=>{}}
+                className= { formStatus.complement_address.validate } 
+                name="complement_address"
+                id="complement_address" 
+                onChange={handleChange}
+                onBlur={testComplementAdress}
                 required
                 placeholder='Ponto de referência...'
               />
               <div className="invalid-feedback">
-                { formStatus.copiar_basica.erro }
+                { formStatus.complement_address.erro }
               </div>
             </div>
           </div>         

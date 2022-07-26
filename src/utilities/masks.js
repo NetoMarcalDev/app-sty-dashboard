@@ -33,13 +33,13 @@ export function maskTelefone2(value) {
   return value;
 }
 
-export function  noMask(numero) {
+export function noMask(numero) {
 
   let padrao = '';
   
   for (let i = 0; i < numero.length; i++) {
     
-    if(numero.charAt(i) !== '.' && numero.charAt(i) !== '-') {
+    if(numero.charAt(i) !== '.' && numero.charAt(i) !== '-' && numero.charAt(i) !== '/') {
       padrao = padrao + numero.charAt(i);
     }      
   }
@@ -63,20 +63,24 @@ export function maskCep(e) {
 export function maskCPF(e) {
     
   e.currentTarget.maxLength = 14;
-  let value = e.currentTarget.value;
+  let value =  e.currentTarget.value;
   value = value.replace(/\D/g, "");
-  
-  //value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+
   value = value.replace(/^(\d{3})(\d)/, "$1.$2");
   value = value.replace(/(\d{3})(\d)/, "$1.$2");
   value = value.replace(/(\d{3})(\d)/, "$1-$2");
   value = value.replace(/(\d)(\d{2})/, "$1$2");
 
-
-
-
   e.currentTarget.value = value;
   return e;
+}
+
+export function setMaskCPF(cpf) {
+    
+  let value =  cpf;
+  //value = value.replace(/\D/g, "");
+  value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  return value;
 }
 
 export function maskCNPJ(e) {
@@ -94,4 +98,11 @@ export function maskCNPJ(e) {
 
   e.currentTarget.value = value;
   return e;
+}
+
+export function setMaskCNPJ(cnpj) {
+    
+  let value = cnpj;
+  value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+  return value;
 }
