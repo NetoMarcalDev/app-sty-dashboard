@@ -78,7 +78,101 @@ export function isValidCPF (cpf) {
 	return true;   
 }
 
-export function isValidCNPJ(value) {
+export function isValidCNPJ (cnpj) {
  
+    cnpj = cnpj.replace(/[^\d]+/g,'');
+   
+	if(cnpj === '') return false;
+	
+    if (cnpj.length !== 14)
+	return false;
+	
+	
+    // Elimina CNPJs invalidos conhecidos
+    if (cnpj === "00000000000000" || 
+        cnpj === "11111111111111" || 
+        cnpj === "22222222222222" || 
+        cnpj === "33333333333333" || 
+        cnpj === "44444444444444" || 
+        cnpj === "55555555555555" || 
+        cnpj === "66666666666666" || 
+        cnpj === "77777777777777" || 
+        cnpj === "88888888888888" || 
+        cnpj === "99999999999999")
+        return false;
+		
+    // Valida DVs
+    var tamanho = cnpj.length - 2
+    var numeros = cnpj.substring(0,tamanho);
+    var digitos = cnpj.substring(tamanho);
+	var soma = 0;
+    var pos = tamanho - 7;
+    
+	for (let i = tamanho; i >= 1; i--) {
+      soma += numeros.charAt(tamanho - i) * pos--;
+      if (pos < 2)
+            pos = 9;
+    }
+
+    var resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+    
+	if (resultado != digitos.charAt(0))
+        return false;
+    
+		
+    tamanho = tamanho + 1;
+    numeros = cnpj.substring(0,tamanho);
+    soma = 0;
+    pos = tamanho - 7;
+
+    for (let i = tamanho; i >= 1; i--) {
+      soma += numeros.charAt(tamanho - i) * pos--;
+      if (pos < 2)
+            pos = 9;
+    }
+
+    resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+
+    if (resultado != digitos.charAt(1))
+          return false;
+        
+	return true;
+    
+}
+
+export function isValidData (data) {
+
+  var aAr = data.split("/"),
+  lDay = parseInt(aAr[0]), lMon = parseInt(aAr[1]), lYear = parseInt(aAr[2]),
+  BiY = (lYear % 4 === 0 && lYear % 100 !== 0) || lYear % 400 === 0,
+  MT = [1, BiY ? -1 : -2, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1];
+  return lMon <= 12 && lMon > 0 && lDay <= MT[lMon - 1] + 30 && lDay > 0;
+
+}
+
+export function formatDate (date, format) {
+
+   const map = {
+        mm: ("0"+(date.getMonth() + 1)).toString().slice(-2),
+        dd: ("0"+date.getDate()).toString().slice(-2),
+        aaaa: date.getFullYear()
+    }
+
+    return format.replace(/mm|dd|aaaa/gi, matched => map[matched])
+}
+
+export function formatDateHour(timestamp, lang, tz) {
+
+  let dateObj = new Date(timestamp)
+  
+  return dateObj.toLocaleString(lang, {
+      timeZone: tz,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute:'2-digit',
+      second:'2-digit'
+  }).replace(/\//g, '-')
   
 }

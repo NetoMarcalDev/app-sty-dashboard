@@ -1,8 +1,25 @@
 import React, { useState, useEffect, createRef } from 'react';
 import './style.css';
-import { isValibCep, isValidUf, isValidCPF, isValidCNPJ } from '../../../utilities/Utilities';
-import { noMask, maskCep, maskCPF, setMaskCPF, maskCNPJ, setMaskCNPJ } from '../../../utilities/masks';
+import { 
+  isValibCep, 
+  isValidUf, 
+  isValidCPF, 
+  isValidCNPJ, 
+  formatDate,
+  formatDateHour 
+} from '../../../utilities/Utilities';
+
+import { 
+  noMask, 
+  maskCep, 
+  maskCPF, 
+  setMaskCPF, 
+  maskCNPJ, 
+  setMaskCNPJ 
+} from '../../../utilities/masks';
+
 import { getCep } from '../../../api/Correios/Services';
+
 
 const RegisterCostumer = (props) => { 
     
@@ -34,13 +51,16 @@ const RegisterCostumer = (props) => {
 
   const [formStatus, setFormStatus] = useState(()=>statusFormDefault);
   const [isSubmit, setIsSubmit] = useState(false);
+  const [type_document, setTypeDocument] = useState('CPF');
+
 
   const references = {
     name_application_bb: createRef(),
     id_application_bb: createRef(),
     address: createRef(),
     number_address: createRef(),
-    document: createRef()
+    document: createRef(),
+    registration_date: createRef(),
   }
 
   const handleChange = (e) => {
@@ -75,6 +95,16 @@ const RegisterCostumer = (props) => {
     props.setCustomer({ ...props.customer, [e.target.name]: noMask(e.target.value) });
   }
 
+  const handleChangeDocumentType = (e) => {
+
+    props.setCustomer({ ...props.customer, [e.target.name]: e.target.value });
+    
+    if (e.target.value === '1') {
+      setTypeDocument('CPF');
+    }else { setTypeDocument('CNPJ'); }
+    clearDocument();
+  };
+
 
   const handleSubmit = (e) => {
     
@@ -89,13 +119,21 @@ const RegisterCostumer = (props) => {
     }
   };
 
-  /*useEffect(() => {
+  useEffect(() => {
 
-    console.log(errors);
+    const timeElapsed = Date.now();
+    const today = new Date(timeElapsed);
+
+    console.log(formatDate(today, 'aaaa-mm-dd'))
+    console.log(formatDateHour(today, 'pt-BR','America/Sao_Paulo'));
+
+    
+    
+    /*console.log(errors);
     if (Object.keys(errors).length === 0 && isSubmit) {
       console.log(props.customer);
-    }
-  }, []);*/
+    }*/
+  }, []);
 
   const searchCep = async (e) => { 
 
@@ -155,6 +193,22 @@ const RegisterCostumer = (props) => {
       });
 
     }
+  }
+
+  const clearDocument = () => { 
+
+    props.setCustomer({ 
+      ...props.customer,
+      document: ''
+     });
+
+     references.document.current.value = '';
+     setFormStatus({...formStatus, 
+      documento: {
+        erro: '',
+        validate: 'form-control'
+      }
+    });
   }
 
   const validate = () => {    
@@ -338,10 +392,8 @@ const RegisterCostumer = (props) => {
   }
 
   const testDocument = () => {
-    
-    console.log(isValidCNPJ(props.customer.document))
-
-    /*if (!props.customer.document) {
+     
+    if (!props.customer.document) {
       setFormStatus({...formStatus, 
         documento: {
           erro: 'Campo obrigatório!',
@@ -350,23 +402,38 @@ const RegisterCostumer = (props) => {
       });
       return false;
     }
-    if (!isValidCNPJ(noMask(props.customer.document))) {
-      setFormStatus({...formStatus, 
-        documento: {
-          erro: 'CNPJ inválido!',
-          validate: 'form-control is-invalid'
-        }
-      });
-      references.document.current.focus();
-      return false;
-    }
+
+    if (type_document === 'CPF') {
+
+      if (!isValidCPF(noMask(props.customer.document))) {
+        setFormStatus({...formStatus, 
+          documento: {
+            erro: 'CPF inválido!',
+            validate: 'form-control is-invalid'
+          }
+        });
+        references.document.current.focus();
+        return false;
+      }
+    } else {
+      if (!isValidCNPJ(noMask(props.customer.document))) {
+        setFormStatus({...formStatus, 
+          documento: {
+            erro: 'CNPJ inválido!',
+            validate: 'form-control is-invalid'
+          }
+        });
+        references.document.current.focus();
+        return false;
+      }
+    }    
     setFormStatus({...formStatus, 
       documento: {
         erro: '',
         validate: 'form-control is-valid'
       }
     });
-    return true;*/
+    return true;
   }
   
   const testCep = () => {
@@ -667,7 +734,7 @@ const RegisterCostumer = (props) => {
               <select 
                 className={formStatus.document_type.validate}
                 name="document_type"
-                onChange={handleChange}
+                onChange={handleChangeDocumentType}
                 onBlur={testDocumentType}
                 required
               >
@@ -679,13 +746,13 @@ const RegisterCostumer = (props) => {
               </div>
             </div>
             <div className="col-md-4 mb-3">
-              <label>{props.customer.document_type === 1 ? 'CPF' : 'CNPJ'}</label>
+              <label>{type_document}</label>
               <input 
                 type="text" 
                 className={formStatus.documento.validate} 
                 name="document" 
                 id="document"
-                onChange={props.customer.document_type === 1 ? handleChangeMaskCPF :  handleChangeMaskCNPJ }
+                onChange={type_document === 'CPF' ? handleChangeMaskCPF :  handleChangeMaskCNPJ }
                 ref={references.document}
                 onBlur={testDocument}
                 required 
@@ -699,7 +766,8 @@ const RegisterCostumer = (props) => {
               <input 
                 type="date" 
                 className={formStatus.registration_date.validate}
-                name="date" 
+                name="date"
+                ref={references.registration_date} 
                 onChange={handleChange}
                 onBlur={testRegistrationDate}
                 required  
@@ -743,7 +811,7 @@ const RegisterCostumer = (props) => {
                 { formStatus.cep.erro } 
               </div>
             </div> 
-            <div className="col-md-5 mb-3">
+            <div className="col-md-4 mb-3">
               <label>Cidade</label>
               <input 
                 type="text" 
@@ -759,7 +827,7 @@ const RegisterCostumer = (props) => {
                 { formStatus.city.erro  } 
               </div>
             </div>  
-            <div className="col-md-1 mb-3">
+            <div className="col-md-2 mb-3">
               <label>UF</label>
               <select 
                 type="text" 
