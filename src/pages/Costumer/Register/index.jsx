@@ -4,28 +4,45 @@ import Menu from '../../../components/Menu';
 import { registerCustomer } from '../../../api/Clients/Clientes';
 import axios from 'axios';
 import ModalContirm from '../../../components/Modal/Confirm';
+import '../../../styles.css';
 
 const CostumerRegister = () => {   
 
     const clientDefault = {
+        id: '',
         name_application_bb: '',
         id_application_bb: '',
-        developer_application_key : '',
+        developer_application_key: '',
         client_id: '',
         client_secret: '',
-        copiar_basica: '',
+        basic_copy: '',
         document_type: 1,
         document: '',
         description: '',
-        date: '',   
-        district: '',
-        type_address: '',     
+        date: '',
+        date_registration: '',
+        date_update: '',
+        address_type: '',
         address: '',
-        number_address: '',
-        complement_address: '',
+        address_number: '',
         city: '',
         uf: '',
+        address_complement: '',
+        district: '',
         cep: '',
+        phone_number1: '',
+        whats_app_phone1: '',
+        phone_number2: '',
+        whats_app_phone2: '',
+        phone_number3: '',
+        whats_app_phone3: '',
+        email1 : '',
+        email2: '',
+        site: '',
+        facebook: '',
+        instagram: '',
+        notes: '', 
+        access_key: ''
     }
     const modalDefault = { 
         modal: false, 
