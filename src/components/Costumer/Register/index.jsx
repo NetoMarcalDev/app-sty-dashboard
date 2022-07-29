@@ -4,8 +4,8 @@ import {
   isValibCep, 
   isValidUf, 
   isValidCPF, 
-  isValidCNPJ, 
-  formatDate,
+  isValidCNPJ,
+  isValidEMail
 } from '../../../utilities/Utilities';
 
 import { 
@@ -14,9 +14,8 @@ import {
   maskCPF, 
   maskCNPJ
 } from '../../../utilities/masks';
-
 import { getCep } from '../../../api/Correios/Services';
-
+import {getTreatmentMasculine, getTreatmentFemale  } from '../../../data/treatment';
 
 const RegisterCostumer = (props) => { 
     
@@ -35,7 +34,9 @@ const RegisterCostumer = (props) => {
     document_type: dataDefault,
     document: dataDefault,
     description: dataDefault,
-    date: dataDefault,   
+    date: dataDefault,  
+    sexo: dataDefault,
+    treatment: dataDefault, 
     address_type: dataDefault,
     address: dataDefault,
     address_number: dataDefault, 
@@ -62,12 +63,15 @@ const RegisterCostumer = (props) => {
   const [isSubmit, setIsSubmit] = useState(false);
   const [type_document, setTypeDocument] = useState('CPF');
 
+  const masculine_list = getTreatmentMasculine();
+  const female_list = getTreatmentFemale();
 
   const references = {
     name_application_bb: createRef(),
     id_application_bb: createRef(),
     address: createRef(),
     address_number: createRef(),
+    document_type: createRef(),
     document: createRef(),
     registration_date: createRef(),
   }
@@ -104,14 +108,21 @@ const RegisterCostumer = (props) => {
     props.setCustomer({ ...props.customer, [e.target.name]: noMask(e.target.value) });
   }
 
-  const handleChangeDocumentType = (e) => {
-
-    props.setCustomer({ ...props.customer, [e.target.name]: e.target.value });
+  const handleChangeDocumentType = (e) => {    
     
-    if (e.target.value === '1') {
+    e.preventDefault();
+
+    console.log(e.target.name + ' - ' + e.target.value)
+
+    props.setCustomer({ ...props.customer, document_type: e.target.value });
+
+    if (e.target.value === 1) {
       setTypeDocument('CPF');
     }else { setTypeDocument('CNPJ'); }
     clearDocument();
+
+    console.log(props.customer.document_type)
+
   };
 
 
@@ -120,6 +131,8 @@ const RegisterCostumer = (props) => {
     e.preventDefault();
     setIsSubmit(true);
     
+    //console.log(props.customer);
+
     if (validate()) {
       
       console.log(props.customer);
@@ -130,15 +143,15 @@ const RegisterCostumer = (props) => {
 
   useEffect(() => {
 
-    const timeElapsed = Date.now();
+
+    /*const timeElapsed = Date.now();
     const today = new Date(timeElapsed);
 
-    //console.log(formatDateHour(today, 'pt-BR','America/Sao_Paulo'));
     console.log(formatDate(today, 'aaaa-mm-dd'))
     props.customer.date_registration = formatDate(today, 'aaaa-mm-dd');
     references.registration_date.current.value = props.customer.date_registration;
     
-    /*console.log(errors);
+    console.log(errors);
     if (Object.keys(errors).length === 0 && isSubmit) {
       console.log(props.customer);
     }*/
@@ -364,7 +377,7 @@ const RegisterCostumer = (props) => {
   }
 
   const testDocumentType = () => {
-    if (!props.customer.document_type) {
+    if (!references.document_type.current.value) {
       setFormStatus({...formStatus, 
         document_type: {
           erro: 'Campo obrigatório!',
@@ -655,6 +668,86 @@ const RegisterCostumer = (props) => {
     return true;
   }
 
+  const testSexo = () => {
+    if (!props.customer.sexo) {
+      setFormStatus({...formStatus, 
+        sexo: {
+          erro: 'Campo obrigatório!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      return false;
+    }
+    setFormStatus({...formStatus, 
+      sexo: {
+        erro: '',
+        validate: 'form-control is-valid'
+      }
+    });
+    return true;
+  }
+
+  const testTreatment = () => {
+    if (!props.customer.treatment) {
+      setFormStatus({...formStatus, 
+        treatment: {
+          erro: 'Campo obrigatório!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      return false;
+    }
+    setFormStatus({...formStatus, 
+      treatment: {
+        erro: '',
+        validate: 'form-control is-valid'
+      }
+    });
+    return true;
+  }
+
+  const testEmail1 = () => {
+    if (props.customer.email1) {
+      if (isValidEMail(props.customer.email1)) {
+        setFormStatus({...formStatus, 
+          email1: {
+            erro: '',
+            validate: 'form-control is-valid'
+          }
+        });
+        return true;
+      }
+      setFormStatus({...formStatus, 
+        email1: {
+          erro: 'E-mail inválido!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      return false;
+    }
+  }
+
+  const testEmail2 = () => {
+    if (props.customer.email2) {
+      if (isValidEMail(props.customer.email2)) {
+        setFormStatus({...formStatus, 
+          email2: {
+            erro: '',
+            validate: 'form-control is-valid'
+          }
+        });
+        return true;
+      }
+      setFormStatus({...formStatus, 
+        email2: {
+          erro: 'E-mail inválido!',
+          validate: 'form-control is-invalid'
+        }
+      });
+      return false;
+    }
+  }
+
   return(
     <div className='container-sm'>
       <h4 className='title-page'>Cadastar Cliente</h4>
@@ -763,10 +856,13 @@ const RegisterCostumer = (props) => {
               <select 
                 className={formStatus.document_type.validate}
                 name="document_type"
+                id="document_type"
+                ref={references.document_type}
                 onChange={handleChangeDocumentType}
                 onBlur={testDocumentType}
                 required
               >
+                  <option value=''></option>
                   <option value={1}>Física</option>
                   <option value={2}>Jurídica</option>
               </select>
@@ -774,7 +870,7 @@ const RegisterCostumer = (props) => {
                 { formStatus.document_type.erro }
               </div>
             </div>
-            <div className="col-md-4 mb-3">
+            <div className="col-md-3 mb-3">
               <label>{type_document}<span className='required_field'> *</span></label>
               <input 
                 type="text" 
@@ -790,7 +886,7 @@ const RegisterCostumer = (props) => {
                 { formStatus.document.erro } 
               </div>
             </div>
-            <div className="col-md-4 mb-3">
+            <div className="col-md-3 mb-3">
               <label>Data nascimento<span className='required_field'> *</span></label>
               <input 
                 type="date" 
@@ -800,16 +896,59 @@ const RegisterCostumer = (props) => {
                 onChange={handleChange}
                 onBlur={testDate}
                 required  
-                maxLength={8}
+                maxLength={10}
                 //disabled
               />
               <div className="invalid-feedback">
                 {formStatus.date.erro}
               </div>
             </div>    
+            <div className="col-md-2 mb-3">
+              <label>Sexo<span className='required_field'> *</span></label>
+              <select 
+                className={formStatus.sexo.validate}
+                name="sexo"
+                onChange={handleChange}
+                onBlur={testSexo}
+                required
+              >
+                  <option value=''></option>
+                  <option value='M'>M</option>
+                  <option value='F'>F</option>
+              </select>
+              <div className="invalid-feedback">
+                { formStatus.sexo.erro }
+              </div>
+            </div>
           </div>
           <div className="form-row">
-            <div className="col-md-12 mb-3">
+          <div className="col-md-3 mb-3">
+              <label>Tratamento<span className='required_field'> *</span></label>
+              <select 
+                className={formStatus.treatment.validate}
+                name="treatment"
+                onChange={handleChange}
+                onBlur={testTreatment}
+                required
+              >
+                { 
+                  props.customer.sexo === 'F' ?
+                    female_list.map((treatment_f, index) => 
+                      <option key={index = index+1} value={ treatment_f }>
+                        { treatment_f }
+                      </option>)
+                  : masculine_list.map((treatment_m, index) => 
+                      <option key={index = index+1} value={ treatment_m }>
+                        { treatment_m }
+                      </option>)             
+                }
+          
+              </select>
+              <div className="invalid-feedback">
+                { formStatus.treatment.erro }
+              </div>
+            </div>
+            <div className="col-md-9 mb-3">
               <label >Descrição<span className='required_field'> *</span></label>
               <input 
                 type="text" 
@@ -1100,8 +1239,9 @@ const RegisterCostumer = (props) => {
                   id='email1'
                   //ref={ references.email1 }
                   onChange={handleChange}
-                  onBlur={()=>{}}
+                  onBlur={testEmail1}
                   placeholder=''
+                  //maxLength={}
                 />
                 <div className="invalid-feedback">
                   { formStatus.email1.erro  }
@@ -1116,7 +1256,7 @@ const RegisterCostumer = (props) => {
                   id='email2'
                   //ref={ references.email2 }
                   onChange={handleChange}
-                  onBlur={()=>{}}
+                  onBlur={testEmail2}
                   //required  
                   placeholder=''
                 />
@@ -1131,23 +1271,23 @@ const RegisterCostumer = (props) => {
                 <input 
                   type="text" 
                   className={formStatus.site.validate} 
-                  name="email1" 
-                  id='email1'
+                  name="site" 
+                  id='site'
                   //ref={ references.email1 }
                   onChange={handleChange}
                   onBlur={()=>{}}
                   placeholder=''
                 />
                 <div className="invalid-feedback">
-                  { formStatus.email1.erro  }
+                  { formStatus.site.erro  }
                 </div>
             </div>
             <div className="col-md-4 mb-3">
                 <label>Facebook</label>
                 <input 
                   type="text" 
-                  className={formStatus.email2.validate} 
-                  name="faceboo" 
+                  className={formStatus.facebook.validate} 
+                  name="facebook" 
                   id='facebook'
                   //ref={ references.facebook }
                   onChange={handleChange}
